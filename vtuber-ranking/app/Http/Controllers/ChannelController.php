@@ -68,7 +68,7 @@ class ChannelController extends Controller
         }
         $subscribers = json_encode($subscribers);
         $play = json_encode($play);
-        $channelDataList = $channelDataList->slice(0,5);
+        $channelDataList = $channelDataList->slice(0,1);
 
         return view('channel/detail', compact('channel', 'channelDataList', 'videoList', 'subscribers', 'play'));
     }

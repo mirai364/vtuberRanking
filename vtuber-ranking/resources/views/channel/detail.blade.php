@@ -29,22 +29,8 @@
       <div class="col-md-12">
         <h4 class="ops-title">登録者・再生数の推移</h4>
       </div>
-      <table class="table text-center">
-        <tr>
-          <th class="text-center">日付</th>
-          <th class="text-center">登録者</th>
-          <th class="text-center">再生数</th>
-        </tr>
-        @foreach($channelDataList as $channelData)
-        <tr>
-          <td>{{ $channelData->createdAt->format('Y-m-d') }}</a></td>
-          <td>{{ number_format($channelData->subscribers) }}</td>
-          <td>{{ number_format($channelData->play) }}</td>
-        </tr>
-        @endforeach
-      </table>
       <div class="chart-container">
-          <canvas id="chart" height="150" style="height: 350px"></canvas>
+          <canvas id="chart" height="200" style="height: 350px"></canvas>
       </div>
       <script>
         $(function(){
@@ -61,10 +47,9 @@
                   type: "line",
                   label: "登録者",
                   data: subscribers.data,
-                  borderColor : "rgba(254,97,132,0.8)",
-                  backgroundColor : "rgba(254,97,132,0.5)",
+                  borderColor : "rgba(254,97,132,1)",
+                  backgroundColor : "rgba(254,97,132,1)",
                   yAxisID: "y",
-                  fill: true,
                 }, 
                 {
                   type: "line",
@@ -109,14 +94,17 @@
       <table class="table text-center">
         <tr>
           <th class="text-center">開始日時</th>
-          <th class="text-center" style="text-align: left;" colspan="2">放送内容</th>
-          <th class="text-center"></th>
+          <th class="text-center" style="text-align: middle;" colspan="3">放送内容</th>
         </tr>
         @foreach($videoList as $video)
         <tr style="{{ $video->isAlive ? "background-color: papayawhip" : "background-color: lightgray" }}">
-          <td style="height: 68px;vertical-align: middle;">{{ $video->starttime }}</a></td>
-          <td style="height: 68px;vertical-align: middle;"><img src="http://img.youtube.com/vi/{{ $video->videoId }}/mqdefault.jpg" style="width: 120px"></td>
-          <td style="height: 68px;vertical-align: middle;text-align: left;">{{ $video->videoName }}</td>
+          <td style="height: 68px;vertical-align: middle;">{{ $video->starttime }}</td>
+          <td style="height: 68px;vertical-align: middle;">
+            <a href="/video/detail/{{ $video->id }}"><img src="http://img.youtube.com/vi/{{ $video->videoId }}/mqdefault.jpg" style="width: 120px"></a>
+          </td>
+          <td style="height: 68px;vertical-align: middle;text-align: left;">
+            <a href="/video/detail/{{ $video->id }}">{{ $video->videoName }}</a>
+          </td>
           <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive ? "<span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中" : "" !!}</span></td>
         </tr>
         @endforeach
