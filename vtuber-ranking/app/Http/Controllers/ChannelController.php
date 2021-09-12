@@ -29,7 +29,7 @@ class ChannelController extends Controller
           });
         $id = $channel->id;
         $channelDataList = Cache::remember('channelDataList_' . $id, self::CACHE_TIME, function () use ($id) {
-            $channelDataList = ChannelData::where('channelId', $id)->orderBy('id', 'desc')->limit(5)->get();
+            $channelDataList = ChannelData::where('channelId', $id)->orderBy('id', 'desc')->limit(20)->get();
             return $channelDataList;
           });
         $videoList = Cache::remember('videoList_' . $channelId, self::CACHE_TIME, function () use ($channelId) {
@@ -37,6 +37,19 @@ class ChannelController extends Controller
             return $videoList;
           });
 
-        return view('channel/detail', compact('channel', 'channelDataList', 'videoList'));
+        // chart用のデータを作成
+        $subscribers = [];
+        $play = [];
+        $sorted = $channelDataList->sort();
+        foreach($sorted as $channelData) {
+             $subscribers['label'][] = $channelData->createdAt->format('Y-m-d');
+             $subscribers['data'][] = (int) $channelData->subscribers;
+             $play['data'][] = (int) $channelData->play;
+        }
+        $subscribers = json_encode($subscribers);
+        $play = json_encode($play);
+        $channelDataList = $channelDataList->slice(0,5);
+
+        return view('channel/detail', compact('channel', 'channelDataList', 'videoList', 'subscribers', 'play'));
     }
 }
