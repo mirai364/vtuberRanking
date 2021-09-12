@@ -7,18 +7,38 @@ use App\Http\Controllers\Controller;
 use App\Models\Channel;
 use App\Models\ChannelData;
 use App\Models\Video;
+use DateTime;
 use Illuminate\Support\Facades\Cache;
 
 class ChannelController extends Controller
 {
     // cache time
-    PRIVATE CONST CACHE_TIME = 30;
+    PRIVATE CONST CACHE_TIME = 5;
+    // cache time
+    PRIVATE CONST CACHE_TIME_CHANNEL = 24 * 60;
 
     public function index()
     {
-        $channelList = Channel::all();
+        $page = 1;
+        $nowDate = date("Y-m-d",strtotime("-1 hour"));
+        $channelDataList = Cache::remember('channelDataList_page_' . $page, self::CACHE_TIME_CHANNEL, function () use ($nowDate, $page) {
+          $channelDataList = ChannelData::whereDate('createdAt', '=', $nowDate)->orderBy('subscribers', 'desc')->offset(($page-1) * 100)->limit(200)->get();
+          return $channelDataList;
+        });
+        $channelIdList = [];
+        foreach ($channelDataList as $channelData) {
+          $channelIdList[] = $channelData->channelId;
+        }
+        $channelList = Cache::remember('channel_page_' . $page, self::CACHE_TIME_CHANNEL, function () use ($channelIdList) {
+          $channelList = Channel::whereIn('id', $channelIdList)->get();
+          return $channelList;
+        });
+        $channelMap = [];
+        foreach($channelList as $channel) {
+          $channelMap[$channel->id] = $channel;
+        }
 
-        return view('channel/index', compact('channelList'));
+        return view('channel/index', compact('channelDataList', 'channelMap'));
     }
   
     public function detail($channelId)
