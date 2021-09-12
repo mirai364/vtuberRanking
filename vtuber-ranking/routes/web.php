@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChannelController;
+use App\Http\Controllers\VideoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,4 @@ Route::get('/', function () {
 
 Route::get('/channel', [ChannelController::class, 'index']);
 Route::get('/channel/detail/{id}', [ChannelController::class, 'detail']);
+Route::get('/video/detail/{id}', [VideoController::class, 'detail']);
