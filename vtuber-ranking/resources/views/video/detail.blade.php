@@ -11,12 +11,12 @@
       <table class="table text-center">
         <tr>
           <td>
-            <a href="https://www.youtube.com/channel/{{ $channel->channelId }}">
+            <a href="/channel/detail/{{ $channel->channelId }}">
               <img id="img" style="width: 80px;height: 80px;border-radius: 50%;" src="{{ $channel->thumbnail }}">
             </a>
           </td>
           <td style="height: 80px;vertical-align: middle;text-align: left;">
-            <a href="https://www.youtube.com/channel/{{ $channel->channelId }}">
+            <a href="/channel/detail/{{ $channel->channelId }}">
               <h3 class="ops-title" style="margin-bottom: -2rem;">{{ $channel->channelName }}</h3><br>
               チャンネル登録者数 {{ number_format($channelDataList[0]->subscribers) }}人
             </a>

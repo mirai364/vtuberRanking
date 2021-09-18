@@ -49,4 +49,33 @@ class VideoController extends Controller
 
         return view('video/detail', compact('video', 'channel', 'channelDataList', 'data'));
     }
+
+    public function streamRanking()
+    {
+      $streamVideoList = Cache::remember('streamVideoList', self::CACHE_TIME_VIEWERS, function () {
+        return Video::where('isAlive', 1)->whereNotNull('starttime')->get();
+      });
+      $streamVideoMap = [];
+      $channelIdList = [];
+      $videoIdList = [];
+      foreach ($streamVideoList as $streamVideo) {
+        $videoIdList[] = $streamVideo->id;
+        $channelIdList[] = $streamVideo->channelId;
+        $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime, ];
+      }
+      $targetDate = $streamVideoList->first()->updatedAt;
+      $concurrentViewersList = Cache::remember('streamConcurrentViewersList', self::CACHE_TIME_VIEWERS, function () use ($videoIdList, $targetDate) {
+        $pastTime = (clone $targetDate)->subSeconds(40);
+        return ConcurrentViewers::whereIn('videoId', $videoIdList)->where('createdAt', '<', $targetDate)->where('createdAt', '>', $pastTime)->orderBy('viewers', 'desc')->get();
+      });
+      $channelList = Cache::remember('streamChannelList' , self::CACHE_TIME_VIEWERS, function () use ($channelIdList) {
+        return Channel::whereIn('channelId', $channelIdList)->get();
+      });
+      $channelMap = [];
+      foreach ($channelList as $channel) {
+        $channelMap[$channel->channelId] = ['thumbnail' => $channel->thumbnail, 'channelName' => $channel->channelName, 'group' => $channel->group, ];
+      }
+
+      return view('video/streamRanking', compact('concurrentViewersList', 'streamVideoMap', 'channelMap'));
+    }
 }

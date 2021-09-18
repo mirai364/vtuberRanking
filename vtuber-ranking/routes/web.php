@@ -22,3 +22,4 @@ Route::get('/', function () {
 Route::get('/channel', [ChannelController::class, 'index']);
 Route::get('/channel/detail/{id}', [ChannelController::class, 'detail']);
 Route::get('/video/detail/{id}', [VideoController::class, 'detail']);
+Route::get('/video/stream-ranking', [VideoController::class, 'streamRanking']);
