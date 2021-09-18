@@ -8,12 +8,14 @@ use App\Models\ChannelData;
 use App\Models\Video;
 use App\Models\ConcurrentViewers;
 use Illuminate\Support\Facades\Cache;
+use DateTime;
 
 class VideoController extends Controller
 {  
     // cache time
     PRIVATE CONST CACHE_TIME = 5;
     PRIVATE CONST CACHE_TIME_VIEWERS = 1;
+    PRIVATE CONST CACHE_TIME_RANKING = 60 * 24 * 7;
 
     public function detail($videoId)
     {
@@ -77,5 +79,55 @@ class VideoController extends Controller
       }
 
       return view('video/streamRanking', compact('concurrentViewersList', 'streamVideoMap', 'channelMap'));
+    }
+
+    public function hourlyStreamRanking($date = null)
+    {
+      $now = new DateTime();
+      if ($date !== null) {
+        $targetDate = new DateTime($date . ' 23:59:59');
+        if ($now < $targetDate) {
+          $targetDate = $now;
+        }
+      } else {
+        $targetDate = $now;
+      }
+
+      $hourlyMap=[];
+      for ($i=1; $i<24; $i++) {
+        $nowDate = (clone $targetDate)->modify('+ 1seconds')->modify('- '.$i.'Hours');
+        if ($date !== null && $targetDate->format('Y-m-d') !== $nowDate->format('Y-m-d')) {
+          break;
+        }
+        $hourlyMap[(int)$nowDate->format('H')] = Cache::remember('hourlyStreamConcurrentViewersList_' . $nowDate->format("YmdH"), self::CACHE_TIME_RANKING, function () use ($nowDate) {
+          $concurrentViewersList =  ConcurrentViewers::select('videoId', 'viewers')
+          ->selectRaw('HOUR(createdAt) AS time')
+          ->whereDate('createdAt', '=', $nowDate->format("Y-m-d"))
+          ->whereRaw('HOUR(createdAt) = ' . $nowDate->format('H'))
+          ->orderBy('viewers', 'desc')->get();
+          $hourlyMap = [];
+          foreach ($concurrentViewersList as $concurrentViewers) {
+            if (isset($hourlyMap[$concurrentViewers->videoId])) {
+              continue;
+            }
+            $hourlyMap[$concurrentViewers->videoId] = ['videoId' => $concurrentViewers->videoId, 'viewers' => $concurrentViewers->viewers];
+            if (count($hourlyMap) > 4) {
+              break;
+            }
+          }
+          return $hourlyMap;
+        });
+      }
+      $videoIdList = array_unique(array_column(array_merge(...$hourlyMap),'videoId'));
+      $streamVideoList = Cache::remember('hourlyStreamVideoList', self::CACHE_TIME_VIEWERS, function () use($videoIdList) {
+        return Video::whereIN('id', $videoIdList)->get();
+      });
+      $streamVideoMap = [];
+      $channelIdList = [];
+      foreach ($streamVideoList as $streamVideo) {
+        $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoId' => $streamVideo->videoId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime, ];
+      }
+
+      return view('video/hourlyStreamRanking', compact('hourlyMap', 'streamVideoMap'));
     }
 }
