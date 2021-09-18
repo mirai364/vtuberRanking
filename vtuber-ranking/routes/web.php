@@ -15,10 +15,7 @@ use App\Http\Controllers\VideoController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
+Route::get('/', [VideoController::class, 'streamRanking']);
 Route::get('/channel', [ChannelController::class, 'index']);
 Route::get('/channel/detail/{id}', [ChannelController::class, 'detail']);
 Route::get('/video/detail/{id}', [VideoController::class, 'detail']);
