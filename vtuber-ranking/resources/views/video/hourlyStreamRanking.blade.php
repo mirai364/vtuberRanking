@@ -1,5 +1,6 @@
 @extends('template')
-@section('title', '時間別ランキング')
+@section('title')
+{{ is_null($date) ? '' : $date . ' ' }}時間別ランキング@endsection
 @section('content')
     <style>
         table tr {
@@ -16,7 +17,7 @@
         <table class="table text-center">
             <thead>
                 <tr>
-                    <th style="width: 5rem;" class="text-center col">時間</th>
+                    <th style="width: 5rem;" class="text-center col"></th>
                     <th class="text-center col">1位</th>
                     <th class="text-center col">2位</th>
                     <th class="text-center col">3位</th>

@@ -26,10 +26,14 @@
         }
 
         .pageTitle {
-            margin: 15px auto;
-            width: 20rem;
+            height: 5rem;
+            line-height: 5rem;
+            margin: 0px auto;
+            width: 40rem;
             font-size: larger;
             color: white;
+            text-align: center;
+            vertical-align: middle;
         }
 
         .sideMenue {

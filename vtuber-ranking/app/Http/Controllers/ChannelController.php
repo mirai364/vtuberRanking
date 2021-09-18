@@ -46,7 +46,10 @@ class ChannelController extends Controller
         $channel = Cache::remember('channel_' . $channelId, self::CACHE_TIME, function () use ($channelId) {
             $channel = Channel::firstWhere('channelId', $channelId);
             return $channel;
-          });
+        });
+        if (empty($channel)) {
+          return redirect('/');
+        }
         $id = $channel->id;
         $channelDataList = Cache::remember('channelDataList_' . $id, self::CACHE_TIME, function () use ($id) {
             $channelDataList = ChannelData::where('channelId', $id)->orderBy('id', 'desc')->limit(20)->get();

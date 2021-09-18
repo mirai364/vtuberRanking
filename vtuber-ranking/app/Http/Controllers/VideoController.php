@@ -15,14 +15,17 @@ class VideoController extends Controller
     // cache time
     PRIVATE CONST CACHE_TIME = 5;
     PRIVATE CONST CACHE_TIME_VIEWERS = 1;
-    PRIVATE CONST CACHE_TIME_RANKING = 60 * 24 * 7;
+    PRIVATE CONST CACHE_TIME_RANKING = 60 * 24 * 14;
 
     public function detail($videoId)
     {
         $video = Cache::remember('video_' . $videoId, self::CACHE_TIME, function () use ($videoId) {
             $video = Video::firstWhere('id', $videoId);
             return $video;
-          });
+        });
+        if (empty($video)) {
+          return redirect('/');
+        }
         $channelId = $video->channelId;
         $channel = Cache::remember('channel_' . $channelId, self::CACHE_TIME, function () use ($channelId) {
             $channel = Channel::firstWhere('channelId', $channelId);
@@ -81,17 +84,47 @@ class VideoController extends Controller
       return view('video/streamRanking', compact('concurrentViewersList', 'streamVideoMap', 'channelMap'));
     }
 
-    public function hourlyStreamRanking($date = null)
+    /**
+     * @param string $date
+     * @return DateTime
+     */
+    private function checkDate(string $date = null)
     {
       $now = new DateTime();
-      if ($date !== null) {
-        $targetDate = new DateTime($date . ' 23:59:59');
-        if ($now < $targetDate) {
-          $targetDate = $now;
-        }
-      } else {
-        $targetDate = $now;
+      if ($date === null) {
+        return [$now, null];
       }
+      if(strlen($date) < 8)
+      {
+        return [$now, null];
+      }
+      $targetDate = clone $now;
+      // XXXX-XX-XX の形式になっているか？
+      if(preg_match('/\A[0-9]{4}-[0-9]{2}-[0-9]{2}\z/', $date))
+      {
+        $targetDate = new DateTime($date . ' 23:59:59');
+      }
+      // XXXXXXXX の形式になっているか？
+      if(preg_match('/\A[0-9]{8}\z/', $date))
+      {
+        $year = str_split($date, 4)[0];
+        $month = str_split($date, 2)[2];
+        $day = str_split($date, 2)[3];
+        $date = $year . '-' . $month . '-' . $day;
+        $targetDate = new DateTime($date . ' 23:59:59');
+      }
+
+      // あんまり古いデータは取得できないようにする
+      $pastDay = (clone $now)->modify('- 14days');
+      if ($pastDay > $targetDate) {
+        return [$now, null];
+      }
+      return $now <= $targetDate ? [$now, null] : [$targetDate, $date];
+    }
+
+    public function hourlyStreamRanking($date = null)
+    {
+      [$targetDate, $date] = $this->checkDate($date);
 
       $hourlyMap=[];
       for ($i=1; $i<24; $i++) {
@@ -128,6 +161,6 @@ class VideoController extends Controller
         $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoId' => $streamVideo->videoId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime, ];
       }
 
-      return view('video/hourlyStreamRanking', compact('hourlyMap', 'streamVideoMap'));
+      return view('video/hourlyStreamRanking', compact('hourlyMap', 'streamVideoMap', 'date'));
     }
 }
