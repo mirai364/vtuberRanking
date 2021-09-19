@@ -35,7 +35,7 @@
             <td style="height: 68px;vertical-align: middle;"><img
                     src="http://img.youtube.com/vi/{{ $video->videoId }}/mqdefault.jpg" style="width: 120px"></td>
             <td style="height: 68px;vertical-align: middle;text-align: left;">{{ $video->videoName }}</td>
-            <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive ? "<span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中" : '' !!}</span></td>
+            <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive ? "<a href='https://www.youtube.com/watch?v=$video->videoId'><span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中</a>" : '' !!}</span></td>
         </tr>
     </table>
 

@@ -42,7 +42,7 @@ class VideoController extends Controller
     foreach ($streamVideoList as $streamVideo) {
       $videoIdList[] = $streamVideo->id;
       $channelIdList[] = $streamVideo->channelId;
-      $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime,];
+      $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoId' => $streamVideo->videoId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime,];
     }
     $concurrentViewersList = ConcurrentViewers::findAllByVideoIdListAndDate($videoIdList, $streamVideoList->first()->updatedAt);
     $channelList = Channel::findAllByChannelIdList($channelIdList);
@@ -80,6 +80,7 @@ class VideoController extends Controller
       $date = $year . '-' . $month . '-' . $day;
       $targetDate = new DateTime($date . ' 23:59:59');
     }
+    $date = $targetDate->format('Y年n月j日') . '(' . self::DAY_CONVERT[$targetDate->format('N')] . ')';
 
     // あんまり古いデータは取得できないようにする
     $pastDay = (clone $now)->modify('- 14days');
@@ -111,6 +112,16 @@ class VideoController extends Controller
     return view('video/hourlyStreamRanking', compact('hourlyMap', 'streamVideoMap', 'date'));
   }
 
+  CONST DAY_CONVERT = [
+    1 => '<span style="color: yellow">月</span>',
+    2 => '<span style="color: pink">火</span>',
+    3 => '<span style="color: green">水</span>',
+    4 => '<span style="color: orange">木</span>',
+    5 => '<span style="color: lightblue">金</span>',
+    6 => '<span style="color: purple">土</span>',
+    7 => '<span style="color: red">日</span>',
+  ];
+
   public function dailyStreamRanking($date = null)
   {
     [$targetDate, $date] = $this->checkDate($date);
@@ -118,6 +129,8 @@ class VideoController extends Controller
     if ($date === null) {
       // 当日分は5分キャッシュで、随時更新処理
       $cacheTime = 5 * 60;
+      $now = new DateTime();
+      $date = $now->format('Y年n月j日') . '(' . self::DAY_CONVERT[$now->format('N')] . ')';
     }
 
     $dailyMap = ConcurrentViewers::getDailyStreamConcurrentViewersList($targetDate, $cacheTime);

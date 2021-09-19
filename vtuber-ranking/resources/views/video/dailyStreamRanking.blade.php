@@ -1,6 +1,8 @@
 @extends('template')
 @section('title')
-{{ is_null($date) ? '' : $date . ' ' }}日別ランキング@endsection
+{!! is_null($date) ? '' : $date . ' ' !!}日別ランキング@endsection
+@section('dailyStreamRanking', 'select')
+@section('dailyStreamRankingSubMenu', 'open')
 @section('content')
     <style>
         table {
@@ -55,69 +57,6 @@
             vertical-align: middle !important;
         }
 
-        @media screen and (max-width: 600px) {
-            table {
-                border: 0;
-                width: 100%
-            }
-
-            table th {
-                background-color: #fd6767;
-                display: block;
-                border-right: none;
-            }
-
-            table thead {
-                border: none;
-                clip: rect(0 0 0 0);
-                height: 1px;
-                margin: -1px;
-                overflow: hidden;
-                padding: 0;
-                position: absolute;
-                width: 1px;
-            }
-
-            table tr {
-                display: block;
-                margin-bottom: .625em;
-                border: 1px solid #fd6767;
-            }
-
-            table td {
-                border-bottom: 1px dotted #bbb;
-                display: block;
-                font-size: .8em;
-                text-align: right;
-                position: relative;
-                padding: 1.5em 1em 1.5em 4em;
-                border-right: none;
-                height: 50px;
-                vertical-align: middle;
-            }
-
-            table td::before {
-                content: attr(data-label);
-                font-weight: bold;
-                position: absolute;
-                left: 10px;
-                color: #000;
-            }
-
-            table td:last-child {
-                border-bottom: 0;
-            }
-
-            table tbody th {
-                color: #fff;
-                padding: 1em
-            }
-
-            table tr:nth-child(even) {
-                background-color: #fff;
-            }
-        }
-
     </style>
     <div style="margin-top: 3rem;">
         <table class="table text-center">
@@ -138,7 +77,7 @@
                         </td>
                         <td>
                             <img src="http://img.youtube.com/vi/{{ $streamVideo['videoId'] }}/mqdefault.jpg"
-                                style="width: 120px"><br>
+                                style="height: 60px;"><br>
                         </td>
                         <td>
                             <a href="/video/detail/{{ $streamVideo['videoId'] }}">

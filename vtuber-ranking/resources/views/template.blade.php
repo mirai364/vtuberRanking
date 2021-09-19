@@ -19,9 +19,9 @@
 
         .top {
             height: 5rem;
+            width: 20rem;
             font-size: larger;
             line-height: 5rem;
-            padding-left: 2rem;
             display: flex;
         }
 
@@ -120,20 +120,17 @@
             border-left: 5px solid #fff;
             box-sizing: border-box;
             transition: .1s;
-        }
-
-        /* オープン時のスタイル */
-        details[open] summary {
-            background-color: #70d6c8;
-        }
-
-        details[open] summary:after {
             transform: rotate(90deg);
             /* アイコンを回転 */
             left: 4px;
             /* 位置を調整 */
             top: 5px;
             /* 位置を調整 */
+        }
+
+        /* オープン時のスタイル */
+        details[open] summary {
+            background-color: #70d6c8;
         }
 
         /* アニメーション */
@@ -153,6 +150,30 @@
             }
         }
 
+        .link {
+            display: block;
+        }
+
+        .link:hover {
+            text-decoration: none;
+        }
+
+        .sideMenueText {
+            margin: 3rem;
+            color: white;
+            font-size: larger;
+        }
+
+        .sideMenueSubText {
+            margin: 1rem 0rem 1rem 5rem;
+            color: white;
+            font-size: small
+        }
+
+.select {
+    background-color: #70d6c8;
+}
+
     </style>
     <title>VAnalysis</title>
 </head>
@@ -160,49 +181,47 @@
 <body>
     <!-- ヘッダー -->
     <div class="headerMenue">
-        <div class="top"><a href="/" style="color: white;display: block;"><img src="{{ asset('logo.png')}}" style="height: 4rem;">  VAnalysis</a></div>
+        <div class="top">
+            <a href="/" style="color: white;display: block;width: 20rem;text-decoration: none;">
+            <div style="margin-left: 3rem;"><img src="{{ asset('logo.png') }}"style="height: 4rem;"> VAnalysis</div>
+        </a></div>
         <div class="pageTitle">@yield('title')</div>
     </div>
     <!-- サイドメニュー -->
     <div class="sideMenue">
         <div style="margin: 10rem 3rem 0 3rem;"></div>
-        <div class="contentBlock"><a href="/" style="display: block;"><span
-                    style="margin: 3rem;color: white;font-size: larger;">放送中一覧</span></a></div>
-        <div class="contentBlock"><a href="/channel" style="display: block;"><span
-                    style="margin: 3rem;color: white;font-size: larger;">チャンネル一覧</span></a></div>
-        <div class="contentBlock"><a href="/video/hourly-stream-ranking" style="display: block;"><span
-                    style="margin: 3rem 3rem 1rem 3rem;color: white;font-size: larger;">時間別ランキング</span></a></div>
-        <details>
+        <div class="contentBlock"><a href="/" class="link @yield('streamRanking')"><span class="sideMenueText">放送中一覧</span></a></div>
+        <div class="contentBlock"><a href="/channel" class="link @yield('channel')"><span
+                    class="sideMenueText">チャンネル一覧</span></a></div>
+        <div class="contentBlock"><a href="/video/hourly-stream-ranking" class="link @yield('hourlyStreamRanking')"><span
+                    class="sideMenueText" style="margin: 3rem 3rem 1rem 3rem;">時間別ランキング</span></a></div>
+        <details @yield('hourlyStreamRankingSubMenu')>
             <summary style="text-align: center;"></summary>
             <div class="details-content">
-            <?php
+                <?php
                 $now = new DateTime();
                 for($i=1;$i<=7;$i++):
             ?>
                 <?php $nowDate = (clone $now)->modify('- ' . $i . 'Days')->format('Y-m-d'); ?>
                 <div class="subContentBlock"><a href="/video/hourly-stream-ranking/{{ $nowDate }}"
-                        style="display: block;"><span
-                            style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
-                            {{ $nowDate }}</span></a></div>
-            <?php endfor; ?>
+                        class="link"><span class="sideMenueSubText">・{{ $nowDate }}</span></a></div>
+                <?php endfor; ?>
             </div>
         </details>
 
-        <div class="contentBlock"><a href="/video/daily-stream-ranking" style="display: block;"><span
-                    style="margin: 3rem 3rem 1rem 3rem;color: white;font-size: larger;">日別ランキング</span></a></div>
-        <details>
+        <div class="contentBlock"><a href="/video/daily-stream-ranking" class="link @yield('dailyStreamRanking')"><span
+                    class="sideMenueText" style="margin: 3rem 3rem 1rem 3rem;">日別ランキング</span></a></div>
+        <details @yield('dailyStreamRankingSubMenu')>
             <summary style="text-align: center;"></summary>
             <div class="details-content">
-            <?php
+                <?php
                 $now = new DateTime();
                 for($i=1;$i<=7;$i++):
             ?>
                 <?php $nowDate = (clone $now)->modify('- ' . $i . 'Days')->format('Y-m-d'); ?>
                 <div class="subContentBlock"><a href="/video/daily-stream-ranking/{{ $nowDate }}"
-                        style="display: block;"><span
-                            style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
-                            {{ $nowDate }}</span></a></div>
-            <?php endfor; ?>
+                        class="link"><span class="sideMenueSubText">・{{ $nowDate }}</span></a></div>
+                <?php endfor; ?>
             </div>
         </details>
     </div>

@@ -1,6 +1,8 @@
 @extends('template')
 @section('title')
-{{ is_null($date) ? '' : $date . ' ' }}時間別ランキング@endsection
+{!! is_null($date) ? '' : $date . ' ' !!}時間別ランキング@endsection
+@section('hourlyStreamRanking', 'select')
+@section('hourlyStreamRankingSubMenu', 'open')
 @section('content')
     <style>
         table tr {
