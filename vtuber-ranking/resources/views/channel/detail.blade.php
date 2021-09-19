@@ -11,7 +11,7 @@
             <td style="height: 80px;vertical-align: middle;text-align: left;">
                 <a href="https://www.youtube.com/channel/{{ $channel->channelId }}">
                     <h3 class="ops-title" style="margin-bottom: -2rem;">{{ $channel->channelName }}</h3><br>
-                    チャンネル登録者数 {{ number_format($channelDataList[0]->subscribers) }}人
+                    チャンネル登録者数 {{ isset($channelDataList[0]) ? number_format($channelDataList[0]->subscribers) : '-' }}人
                 </a>
             </td>
             <td style="height: 80px;vertical-align: middle;">
