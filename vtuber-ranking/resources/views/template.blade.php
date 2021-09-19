@@ -175,7 +175,7 @@
         <details>
             <summary style="text-align: center;"></summary>
             <div class="details-content">
-                <?php
+            <?php
                 $now = new DateTime();
                 for($i=1;$i<=7;$i++):
             ?>
@@ -184,7 +184,7 @@
                         style="display: block;"><span
                             style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
                             {{ $nowDate }}</span></a></div>
-                <?php endfor; ?>
+            <?php endfor; ?>
             </div>
         </details>
 
@@ -193,16 +193,16 @@
         <details>
             <summary style="text-align: center;"></summary>
             <div class="details-content">
-                <?php
+            <?php
                 $now = new DateTime();
                 for($i=1;$i<=7;$i++):
-                ?>
+            ?>
                 <?php $nowDate = (clone $now)->modify('- ' . $i . 'Days')->format('Y-m-d'); ?>
                 <div class="subContentBlock"><a href="/video/daily-stream-ranking/{{ $nowDate }}"
                         style="display: block;"><span
                             style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
                             {{ $nowDate }}</span></a></div>
-                <?php endfor; ?>
+            <?php endfor; ?>
             </div>
         </details>
     </div>
