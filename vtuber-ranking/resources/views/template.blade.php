@@ -21,7 +21,7 @@
             height: 5rem;
             font-size: larger;
             line-height: 5rem;
-            padding-left: 3rem;
+            padding-left: 2rem;
             display: flex;
         }
 
@@ -51,22 +51,160 @@
             margin-left: 20rem;
         }
 
+        .contentBlock {
+            height: 6rem;
+            vertical-align: middle;
+            line-height: 6rem;
+        }
+
+        .contentBlock:hover {
+            background-color: #70d6c8;
+            transition: 0.2s;
+        }
+
+        .subContentBlock {
+            height: 2.5rem;
+            vertical-align: middle;
+            line-height: 2.5rem;
+        }
+
+        .subContentBlock:hover {
+            background-color: #70d6c8;
+            transition: 0.2s;
+        }
+
+        summary {
+            position: relative;
+            display: block;
+            /* 矢印を消す */
+            padding: 10px 10px 10px 30px;
+            /* アイコンの余白を開ける */
+            cursor: pointer;
+            /* カーソルをポインターに */
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        summary:hover {
+            background-color: #70d6c8;
+        }
+
+        summary::-webkit-details-marker {
+            display: none;
+            /* 矢印を消す */
+        }
+
+        /* 疑似要素でアイコンを表示 */
+        summary:before,
+        summary:after {
+            content: "";
+            margin: auto 0 auto 9rem;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+        }
+
+        summary:before {
+            width: 16px;
+            height: 16px;
+            border-radius: 4px;
+            background-color: #1da1ff;
+        }
+
+        summary:after {
+            left: 6px;
+            width: 5px;
+            height: 5px;
+            border: 4px solid transparent;
+            border-left: 5px solid #fff;
+            box-sizing: border-box;
+            transition: .1s;
+        }
+
+        /* オープン時のスタイル */
+        details[open] summary {
+            background-color: #70d6c8;
+        }
+
+        details[open] summary:after {
+            transform: rotate(90deg);
+            /* アイコンを回転 */
+            left: 4px;
+            /* 位置を調整 */
+            top: 5px;
+            /* 位置を調整 */
+        }
+
+        /* アニメーション */
+        details[open] .details-content {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
     </style>
-    <title>VtuberRanking</title>
+    <title>VAnalysis</title>
 </head>
 
 <body>
     <!-- ヘッダー -->
     <div class="headerMenue">
-        <div class="top"><a href="/" style="color: white;">VtuberRanking</a></div>
+        <div class="top"><a href="/" style="color: white;display: block;"><img src="{{ asset('logo.png')}}" style="height: 4rem;">  VAnalysis</a></div>
         <div class="pageTitle">@yield('title')</div>
     </div>
     <!-- サイドメニュー -->
     <div class="sideMenue">
-        <div style="margin: 10rem 3rem 0 3rem;"><a href="/" style="color: white;font-size: larger;">放送中一覧</a></div>
-        <div style="margin: 3rem;"><a href="/channel" style="color: white;font-size: larger;">チャンネル一覧</a></div>
-        <div style="margin: 3rem;"><a href="/video/hourly-stream-ranking"
-                style="color: white;font-size: larger;">時間別ランキング</a></div>
+        <div style="margin: 10rem 3rem 0 3rem;"></div>
+        <div class="contentBlock"><a href="/" style="display: block;"><span
+                    style="margin: 3rem;color: white;font-size: larger;">放送中一覧</span></a></div>
+        <div class="contentBlock"><a href="/channel" style="display: block;"><span
+                    style="margin: 3rem;color: white;font-size: larger;">チャンネル一覧</span></a></div>
+        <div class="contentBlock"><a href="/video/hourly-stream-ranking" style="display: block;"><span
+                    style="margin: 3rem 3rem 1rem 3rem;color: white;font-size: larger;">時間別ランキング</span></a></div>
+        <details>
+            <summary style="text-align: center;"></summary>
+            <div class="details-content">
+                <?php
+                $now = new DateTime();
+                for($i=1;$i<=7;$i++):
+            ?>
+                <?php $nowDate = (clone $now)->modify('- ' . $i . 'Days')->format('Y-m-d'); ?>
+                <div class="subContentBlock"><a href="/video/hourly-stream-ranking/{{ $nowDate }}"
+                        style="display: block;"><span
+                            style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
+                            {{ $nowDate }}</span></a></div>
+                <?php endfor; ?>
+            </div>
+        </details>
+
+        <div class="contentBlock"><a href="/video/daily-stream-ranking" style="display: block;"><span
+                    style="margin: 3rem 3rem 1rem 3rem;color: white;font-size: larger;">日別ランキング</span></a></div>
+        <details>
+            <summary style="text-align: center;"></summary>
+            <div class="details-content">
+                <?php
+                $now = new DateTime();
+                for($i=1;$i<=7;$i++):
+                ?>
+                <?php $nowDate = (clone $now)->modify('- ' . $i . 'Days')->format('Y-m-d'); ?>
+                <div class="subContentBlock"><a href="/video/daily-stream-ranking/{{ $nowDate }}"
+                        style="display: block;"><span
+                            style="margin: 1rem 0rem 1rem 5rem;color: white;font-size: small;">・
+                            {{ $nowDate }}</span></a></div>
+                <?php endfor; ?>
+            </div>
+        </details>
     </div>
 
     <div class="contents">

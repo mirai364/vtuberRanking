@@ -22,3 +22,5 @@ Route::get('/video/detail/{id}', [VideoController::class, 'detail']);
 Route::get('/video/stream-ranking', [VideoController::class, 'streamRanking']);
 Route::get('/video/hourly-stream-ranking', [VideoController::class, 'hourlyStreamRanking']);
 Route::get('/video/hourly-stream-ranking/{id}', [VideoController::class, 'hourlyStreamRanking']);
+Route::get('/video/daily-stream-ranking', [VideoController::class, 'dailyStreamRanking']);
+Route::get('/video/daily-stream-ranking/{id}', [VideoController::class, 'dailyStreamRanking']);
