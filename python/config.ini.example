@@ -1,0 +1,8 @@
+[db_info]
+user = root
+password = password
+host = 127.0.0.1
+port = 3306
+
+[youtube_api]
+apiKey = your api key
