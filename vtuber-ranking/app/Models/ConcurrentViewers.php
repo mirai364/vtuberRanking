@@ -58,6 +58,7 @@ class ConcurrentViewers extends Model
     ];
 
     private const CACHE_TIME_VIEWERS = 1 * 60;
+    private const CACHE_TIME = 5 * 60;
     public static function findAllByVideoId($videoId)
     {
         return Cache::remember('concurrentViewersList_' . $videoId, self::CACHE_TIME_VIEWERS, function () use ($videoId) {
@@ -74,6 +75,28 @@ class ConcurrentViewers extends Model
                 ->where('createdAt', '>', $pastTime)
                 ->orderBy('viewers', 'desc')
                 ->get();
+        });
+    }
+
+    public static function getMaxMinByVideoList($channelId, $videoIdList)
+    {
+        return Cache::remember('streamConcurrentViewersList_' . $channelId, self::CACHE_TIME, function () use ($videoIdList) {
+            $concurrentViewersList = ConcurrentViewers::select('videoId')
+                ->selectRaw('MAX(viewers) AS max')
+                ->selectRaw('AVG(viewers) AS avg')
+                ->selectRaw('SUM(viewers) AS sum')
+                ->whereIn('videoId', $videoIdList)
+                ->groupBy('videoId')
+                ->get();
+            $concurrentViewersMap = [];
+            foreach ($concurrentViewersList as $concurrentViewers) {
+                $concurrentViewersMap[$concurrentViewers->videoId] = [
+                    'max' => $concurrentViewers->max,
+                    'avg' => $concurrentViewers->avg,
+                    'sum' => $concurrentViewers->sum,
+                ];
+            }
+            return $concurrentViewersMap;
         });
     }
 

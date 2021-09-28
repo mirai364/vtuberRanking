@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Channel;
 use App\Models\ChannelData;
 use App\Models\Video;
+use App\Models\ConcurrentViewers;
 
 class ChannelController extends Controller
 {
@@ -36,6 +37,11 @@ class ChannelController extends Controller
     }
     $channelDataList = ChannelData::findBychannelId($channel->id);
     $videoList = Video::findAllByChannelId($channelId);
+    $videoIdList = [];
+    foreach ($videoList as $video) {
+      $videoIdList[] = $video->id;
+    }
+    $concurrentViewersMap = ConcurrentViewers::getMaxMinByVideoList($channelId, $videoIdList);
 
     // chart用のデータを作成
     $subscribers = [];
@@ -50,6 +56,6 @@ class ChannelController extends Controller
     $play = json_encode($play);
 
     $channelDataList = $channelDataList->slice(0, 1);
-    return view('channel/detail', compact('channel', 'channelDataList', 'videoList', 'subscribers', 'play'));
+    return view('channel/detail', compact('channel', 'channelDataList', 'videoList', 'subscribers', 'play', 'concurrentViewersMap'));
   }
 }
