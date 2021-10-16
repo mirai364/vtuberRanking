@@ -98,12 +98,11 @@ def getConcurrentViewers(videoIdList):
     for videoId in videoIdList:
         if (videoId not in videoDataList):
             # liveStreamingDetailsがない場合は、削除対象
-            delList.append(videoId)
+            cursor.execute("UPDATE video SET isAlive = 3, updatedAt = now() WHERE videoId = '" +  videoId + "';", ( ))
 
     tmp = list(videoDataList.values())
     cursor.executemany("UPDATE video SET scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, videoName =  %s, updatedAt = now() WHERE videoId = %s;", tmp)
     cursor.executemany("INSERT INTO concurrentViewers VALUES (null, (SELECT id FROM video WHERE videoId = %s), %s, now());", concurrentViewerList)
-    cursor.executemany("UPDATE video SET isAlive = 3, updatedAt = now() WHERE videoId = %s;", delList)
     db.commit()
     cursor.close()
 
