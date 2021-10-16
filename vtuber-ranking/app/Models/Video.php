@@ -107,9 +107,10 @@ class Video extends Model
     {
         return Cache::remember('videoList_' . $channelId, self::CACHE_TIME, function () use ($channelId) {
             return Video::where('channelId', $channelId)
+                ->whereIn('isAlive', [0,1,3])
                 ->whereNotNull('starttime')
                 ->orderBy('id', 'desc')
-                ->limit(5)
+                ->limit(10)
                 ->get();
         });
     }

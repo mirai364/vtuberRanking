@@ -98,8 +98,17 @@
             <th class="text-center">開始日時</th>
             <th class="text-center" style="text-align: middle;" colspan="3">放送内容</th>
         </tr>
+        <?php $count = 0 ?>
         @foreach ($videoList as $video)
-            <tr style="{{ $video->isAlive ? 'background-color: papayawhip' : 'background-color: lightgray' }}">
+            <?php $concurrentViewers = $concurrentViewersMap[$video->id] ?? null ?>
+            @if ($concurrentViewers === null)
+                @continue
+            @endif
+            @if ($count >= 5)
+                @continue
+            @endif
+            <?php $count++ ?>
+            <tr style="{{ $video->isAlive == 1 ? 'background-color: papayawhip' : 'background-color: lightgray' }}">
                 <td style="height: 68px;vertical-align: middle;">{{ $video->starttime }}</td>
                 <td style="height: 68px;vertical-align: middle;">
                     <a href="/video/detail/{{ $video->id }}"><img
@@ -108,11 +117,10 @@
                 <td style="height: 68px;text-align: left;vertical-align: middle;">
                     <a href="/video/detail/{{ $video->id }}" class="videoLink">
                         <span>{{ $video->videoName }}<span><br>
-                        <?php $concurrentViewers = $concurrentViewersMap[$video->id] ?>
                         <span style="font-size: small;color: brown;">max: {{ number_format($concurrentViewers['max']) }}人 avg: {{ number_format($concurrentViewers['avg']) }}人 総視聴時間: {{ number_format($concurrentViewers['sum']) }}</span>
                     </a>
                 </td>
-                <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive ? "<a href='https://www.youtube.com/watch?v=$video->videoId'><span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中</a>" : '' !!}</span></td>
+                <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive == 1 ? "<a href='https://www.youtube.com/watch?v=$video->videoId'><span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中</a>" : '' !!}</span></td>
             </tr>
         @endforeach
     </table>

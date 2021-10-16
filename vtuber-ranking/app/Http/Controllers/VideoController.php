@@ -8,6 +8,7 @@ use App\Models\ChannelData;
 use App\Models\Video;
 use App\Models\ConcurrentViewers;
 use DateTime;
+use Carbon\Carbon;
 
 class VideoController extends Controller
 {
@@ -44,7 +45,8 @@ class VideoController extends Controller
       $channelIdList[] = $streamVideo->channelId;
       $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoId' => $streamVideo->videoId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime,];
     }
-    $concurrentViewersList = ConcurrentViewers::findAllByVideoIdListAndDate($videoIdList, $streamVideoList->first()->updatedAt);
+    $now = Carbon::now()->second(10)->microsecond(0);
+    $concurrentViewersList = ConcurrentViewers::findAllByVideoIdListAndDate($videoIdList, $now);
     $channelList = Channel::findAllByChannelIdList($channelIdList);
     $channelMap = [];
     foreach ($channelList as $channel) {
