@@ -4,9 +4,15 @@ import requests
 import mysql.connector
 import datetime
 
-ini = configparser.ConfigParser()
+ini = configparser.RawConfigParser()
 ini.read('./config.ini', 'UTF-8')
-db=mysql.connector.connect(host=ini['db_info']['host'], user=ini['db_info']['user'], password=ini['db_info']['password'], port=ini['db_info']['port'])
+db=mysql.connector.connect(
+    host=ini.get('db_info','host'),
+    user=ini.get('db_info','user'),
+    password=ini.get('db_info','password'),
+    port=ini.get('db_info','port'),
+    database=ini.get('db_info','db')
+)
 
 headers = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36",
@@ -16,8 +22,6 @@ headers = {
 def main():
     # connect
     cursor=db.cursor()
-    cursor.execute("USE vtuber_database")
-    db.commit()
 
     for number in range(1,400):
         session = requests.Session()

@@ -1,67 +1,98 @@
 import configparser
-import traceback
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import chromedriver_binary
-import time
-import datetime
+import os
+import feedparser
 import mysql.connector
+from multiprocessing import Pool
+import googleapiclient.discovery
+import datetime
+import time
 
-ini = configparser.ConfigParser()
-ini.read('./config.ini', 'UTF-8')
-db=mysql.connector.connect(host=ini['db_info']['host'], user=ini['db_info']['user'], password=ini['db_info']['password'], port=ini['db_info']['port'])
+def init():
+    ini = configparser.RawConfigParser()
+    ini.read('./config.ini', 'UTF-8')
 
-url = "https://holodex.net/home"
+    global cnx
+    cnx=mysql.connector.connect(
+        host=ini.get('db_info','host'),
+        user=ini.get('db_info','user'),
+        password=ini.get('db_info','password'),
+        port=ini.get('db_info','port'),
+        database=ini.get('db_info','db')
+    )
+
+    global youtube
+    API_KEY = ini.get('youtube_api','apiKey')
+    YOUTUBE_API_SERVICE_NAME = 'youtube'
+    YOUTUBE_API_VERSION = 'v3'
+    youtube = googleapiclient.discovery.build(
+      YOUTUBE_API_SERVICE_NAME,
+      YOUTUBE_API_VERSION,
+      developerKey=API_KEY
+    )
 
 def main():
-    options = Options()
-    options.add_argument('--headless')
-    driver = webdriver.Chrome(options=options)
+    ini = configparser.RawConfigParser()
+    ini.read('./config.ini', 'UTF-8')
+    db=mysql.connector.connect(
+        host=ini.get('db_info','host'),
+        user=ini.get('db_info','user'),
+        password=ini.get('db_info','password'),
+        port=ini.get('db_info','port'),
+        database=ini.get('db_info','db')
+    )
+    cursor = db.cursor()
 
-    try:
-        driver.get(url)
+    sql = 'SELECT videoId FROM video WHERE isAlive = -1'
+    cursor.execute(sql)
+    modelList = cursor.fetchall()
+    videoIdList = []
+    for model in modelList:
+        videoIdList.append(model[0])
+    videoIdList = [videoIdList[i:i+50] for i in range(0,len(videoIdList),50)]
 
-        # view vtuber list all
-        time.sleep(1)
-        driver.find_element_by_class_name("nav-title").click()
-        time.sleep(1)
-        driver.find_elements_by_class_name("v-sheet")[7].find_element_by_class_name("v-list-item").click()
-        time.sleep(3)
+    p = Pool(processes=12, initializer=init)
+    p.map(getVideo, videoIdList)
+    p.close()
+    p.join()
 
-        # connect
-        cursor=db.cursor()
-        cursor.execute("USE vtuber_database")
-        db.commit()
+JST = datetime.timedelta(hours=9)
+def timetrans(strtime):
+    stime = datetime.datetime.fromisoformat(strtime[:-1]) + JST
+    return stime.replace(microsecond=0)
 
-        values = driver.find_element_by_class_name("video-row").find_elements_by_class_name("video-card")
-        now = datetime.datetime.now()
-        for videoCard in values:
-            channelName = videoCard.find_element_by_class_name("channel-name").text
-            channelId = videoCard.find_element_by_class_name("channel-name").find_element_by_tag_name("a").get_attribute("href").split("/")[4]
-            videoTitle = videoCard.find_element_by_class_name("video-card-title").get_attribute("title")
-            videoId = videoCard.get_attribute("href").split("/")[4]
-            cursor.execute("SELECT id FROM channel WHERE channelId = %s", (channelId, ))
-            model = cursor.fetchone()
-            if model == None:
-                cursor.execute("INSERT INTO channel VALUES (null, %s, null, %s, %s, %s);", (channelId, channelName, None, now.strftime("%Y-%m-%d %H:%M:%S")))
-            else:
-                cursor.execute("UPDATE channel SET channelName = %s WHERE id = %s;", (channelName, model[0]))
+def getVideo(videoIdList):
+    os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+    request = youtube.videos().list(
+        part="snippet,liveStreamingDetails",
+        id=videoIdList
+    )
+    response = request.execute()
 
-            cursor.execute("SELECT id FROM video WHERE videoId = %s", (videoId, ))
-            model = cursor.fetchone()
-            if model == None:
-                cursor.execute("INSERT INTO video (id, channelId, videoId, videoName, isAlive, updatedAt) VALUES (null, %s, %s, %s, %s, %s);", (channelId, videoId, videoTitle, 1, now.strftime("%Y-%m-%d %H:%M:%S")))
-            else:
-                cursor.execute("UPDATE video SET updatedAt = %s, isAlive = 1 WHERE id = %s;", (now.strftime("%Y-%m-%d %H:%M:%S"), model[0]))
+    dataList = []
+    for item in response["items"]:
+        if ('liveStreamingDetails' not in item):
+            # liveStreamingDetailsがない場合は、ただの動画
+            dataList.append((None, None, None, 2, item["id"]))
+            continue
 
-        db.commit()
+        isAlive = 1
+        actualEndTime = None
+        if ('actualEndTime' in item["liveStreamingDetails"]):
+            actualEndTime = timetrans(item["liveStreamingDetails"]['actualEndTime'])
+            isAlive = 0
+        actualStartTime = None
+        if ('actualStartTime' in item["liveStreamingDetails"]):
+            actualStartTime = timetrans(item["liveStreamingDetails"]['actualStartTime'])
+        scheduledStartTime = None
+        if ('scheduledStartTime' in item["liveStreamingDetails"]):
+            scheduledStartTime = timetrans(item["liveStreamingDetails"]['scheduledStartTime'])
 
-        # update old video list
-        cursor.execute('UPDATE video SET isAlive = 0 WHERE updatedAt < %s', (now.strftime("%Y-%m-%d %H:%M:%S"), ))
-        db.commit()
-        cursor.close()
-    finally:
-        driver.quit()
+        dataList.append((scheduledStartTime, actualStartTime, actualEndTime, isAlive, item["id"]))
+
+    curChild = cnx.cursor()
+    curChild.executemany("UPDATE video SET scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, updatedAt = now() WHERE videoId = %s;", dataList)
+    curChild.close()
+    cnx.commit()
 
 if __name__ == "__main__":
     main()

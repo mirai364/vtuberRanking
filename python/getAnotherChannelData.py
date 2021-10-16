@@ -5,24 +5,28 @@ import datetime
 import time
 import mysql.connector
 
-ini = configparser.ConfigParser()
+ini = configparser.RawConfigParser()
 ini.read('./config.ini', 'UTF-8')
-db=mysql.connector.connect(host=ini['db_info']['host'], user=ini['db_info']['user'], password=ini['db_info']['password'], port=ini['db_info']['port'])
+db=mysql.connector.connect(
+    host=ini.get('db_info','host'),
+    user=ini.get('db_info','user'),
+    password=ini.get('db_info','password'),
+    port=ini.get('db_info','port'),
+    database=ini.get('db_info','db')
+)
 
-API_KEY = ini['youtube_api']['apiKey']
+API_KEY = ini.get('youtube_api','apiKey')
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
 youtube = googleapiclient.discovery.build(
-  YOUTUBE_API_SERVICE_NAME, 
-  YOUTUBE_API_VERSION,
-  developerKey=API_KEY
-  )
+    YOUTUBE_API_SERVICE_NAME,
+    YOUTUBE_API_VERSION,
+    developerKey=API_KEY
+)
 
 def main():
     # connect
     cursor=db.cursor()
-    cursor.execute("USE vtuber_database")
-    db.commit()
 
     now = datetime.datetime.now()
     sql = 'SELECT c.channelId FROM channel AS c LEFT JOIN (SELECT * FROM channelData WHERE DATE(createdAt) = "' + now.strftime("%Y-%m-%d") + '") AS tmp ON tmp.channelId = c.id WHERE tmp.subscribers is Null'
@@ -56,8 +60,6 @@ def getSubscribers(channelIdList):
 
     # connect
     cursor=db.cursor()
-    cursor.execute("USE vtuber_database")
-    db.commit()
 
     now = datetime.datetime.now()
     for item in response["items"]:
