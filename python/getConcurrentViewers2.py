@@ -102,7 +102,7 @@ def getConcurrentViewers(videoIdList):
 
     tmp = list(videoDataList.values())
     cursor.executemany("UPDATE video SET scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, videoName =  %s, updatedAt = now() WHERE videoId = %s;", tmp)
-    cursor.executemany("INSERT INTO concurrentViewers VALUES (null, (SELECT id FROM video WHERE videoId = %s), %s, now());", concurrentViewerList)
+    cursor.executemany("INSERT INTO concurrentViewers (id, videoId, viewers, createdAt) VALUES (null, (SELECT id FROM video WHERE videoId = %s), %s, now());", concurrentViewerList)
     db.commit()
     cursor.close()
 
