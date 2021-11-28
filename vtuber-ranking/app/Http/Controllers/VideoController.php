@@ -97,7 +97,7 @@ class VideoController extends Controller
     [$targetDate, $date] = $this->checkDate($date);
 
     $hourlyMap = [];
-    for ($i = 1; $i < 24; $i++) {
+    for ($i = 1; $i <= 24; $i++) {
       $nowDate = (clone $targetDate)->modify('+ 1seconds')->modify('- ' . $i . 'Hours');
       if ($date !== null && $targetDate->format('Y-m-d') !== $nowDate->format('Y-m-d')) {
         break;
