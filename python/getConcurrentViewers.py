@@ -92,7 +92,10 @@ def getConcurrentViewers(videoIdList):
 
         if ('concurrentViewers' not in item["liveStreamingDetails"]):
             continue
-        concurrentViewerList.append((item["id"], item["liveStreamingDetails"]["concurrentViewers"]))
+        ddate = '{0:%Y%m%d}'.format(now)
+        dhour = '{0:%H}'.format(now)
+        dminutes = '{0:%M}'.format(now)
+        concurrentViewerList.append((item["id"], item["liveStreamingDetails"]["concurrentViewers"], ddate, dhour, dminutes))
 
     delList = []
     for videoId in videoIdList:
@@ -102,7 +105,7 @@ def getConcurrentViewers(videoIdList):
 
     tmp = list(videoDataList.values())
     cursor.executemany("UPDATE video SET scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, videoName =  %s, updatedAt = now() WHERE videoId = %s;", tmp)
-    cursor.executemany("INSERT INTO concurrentViewers (id, videoId, viewers, createdAt) VALUES (null, (SELECT id FROM video WHERE videoId = %s), %s, now());", concurrentViewerList)
+    cursor.executemany("INSERT INTO concurrentViewers (id, videoId, viewers, ddate, dhour, dminutes, createdAt) VALUES (null, (SELECT id FROM video WHERE videoId = %s), %s, %s, %s, %s, now());", concurrentViewerList)
     db.commit()
     cursor.close()
 

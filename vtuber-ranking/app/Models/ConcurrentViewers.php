@@ -69,10 +69,10 @@ class ConcurrentViewers extends Model
     public static function findAllByVideoIdListAndDate($videoIdList, $date)
     {
         return Cache::remember('streamConcurrentViewersList', self::CACHE_TIME_VIEWERS, function () use ($videoIdList, $date) {
-            $pastTime = (clone $date)->subSeconds(40);
             return ConcurrentViewers::whereIn('videoId', $videoIdList)
-                ->where('createdAt', '<', $date)
-                ->where('createdAt', '>', $pastTime)
+                ->where('ddate', $date->format('Ymd'))
+                ->where('dhour', $date->format('H'))
+                ->where('dminutes', $date->format('i'))
                 ->orderBy('viewers', 'desc')
                 ->get();
         });
@@ -105,8 +105,8 @@ class ConcurrentViewers extends Model
         return Cache::rememberForever('hourlyStreamConcurrentViewersList_' . $nowDate->format("YmdH"), function () use ($nowDate) {
             $concurrentViewersList =  ConcurrentViewers::select('videoId', 'viewers')
                 ->selectRaw('HOUR(createdAt) AS time')
-                ->whereDate('createdAt', '=', $nowDate->format("Y-m-d"))
-                ->whereRaw('HOUR(createdAt) = ' . $nowDate->format('H'))
+                ->where('ddate', $nowDate->format('Ymd'))
+                ->where('dhour', $nowDate->format('H'))
                 ->orderBy('viewers', 'desc')->get();
             $hourlyMap = [];
             foreach ($concurrentViewersList as $concurrentViewers) {
@@ -127,8 +127,8 @@ class ConcurrentViewers extends Model
         if ($cacheTime === null) {
             return Cache::rememberForever('dailyStreamConcurrentViewersList_' . $targetDate->format("Ymd"), function () use ($targetDate) {
                 $concurrentViewersList =  ConcurrentViewers::select('videoId', 'viewers')
-                    ->selectRaw('HOUR(createdAt) AS time')
-                    ->whereDate('createdAt', '=', $targetDate->format("Y-m-d"))
+                    ->selectRaw('dhour AS time')
+                    ->where('ddate', $targetDate->format('Ymd'))
                     ->orderBy('viewers', 'desc')->get();
                 $dailyMap = [];
                 foreach ($concurrentViewersList as $concurrentViewers) {
@@ -145,8 +145,8 @@ class ConcurrentViewers extends Model
         }
         return Cache::remember('dailyStreamConcurrentViewersList_' . $targetDate->format("Ymd"), $cacheTime, function () use ($targetDate) {
             $concurrentViewersList =  ConcurrentViewers::select('videoId', 'viewers')
-                ->selectRaw('HOUR(createdAt) AS time')
-                ->whereDate('createdAt', '=', $targetDate->format("Y-m-d"))
+                ->selectRaw('dhour AS time')
+                ->where('ddate', $targetDate->format('Ymd'))
                 ->orderBy('viewers', 'desc')->get();
             $dailyMap = [];
             foreach ($concurrentViewersList as $concurrentViewers) {

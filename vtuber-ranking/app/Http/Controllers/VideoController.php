@@ -26,7 +26,7 @@ class VideoController extends Controller
     // chart用のデータを作成
     $data = [];
     foreach ($concurrentViewersList as $concurrentViewers) {
-      $data['label'][] = $concurrentViewers->createdAt->format('Y-m-d H:i:s');
+      $data['label'][] = $concurrentViewers->createdAt->format('Y-m-d H:i:00');
       $data['data'][] = (int) $concurrentViewers->viewers;
     }
     $data = json_encode($data);
@@ -45,8 +45,12 @@ class VideoController extends Controller
       $channelIdList[] = $streamVideo->channelId;
       $streamVideoMap[$streamVideo->id] = ['channelId' => $streamVideo->channelId, 'videoId' => $streamVideo->videoId, 'videoName' => $streamVideo->videoName, 'starttime' => $streamVideo->starttime,];
     }
-    $now = Carbon::now()->second(10)->microsecond(0);
+    $now = Carbon::now();
     $concurrentViewersList = ConcurrentViewers::findAllByVideoIdListAndDate($videoIdList, $now);
+    if ($concurrentViewersList->isEmpty()) {
+      $now->subMinutes(1);
+      $concurrentViewersList = ConcurrentViewers::findAllByVideoIdListAndDate($videoIdList, $now);
+    }
     $channelList = Channel::findAllByChannelIdList($channelIdList);
     $channelMap = [];
     foreach ($channelList as $channel) {
