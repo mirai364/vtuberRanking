@@ -9,7 +9,7 @@ ini = configparser.ConfigParser()
 ini.read('./config.ini', 'UTF-8')
 db=mysql.connector.connect(host=ini['db_info']['host'], user=ini['db_info']['user'], password=ini['db_info']['password'], port=ini['db_info']['port'])
 
-API_KEY = ini['youtube_api']['apiKey']
+API_KEY = ini['youtube_api']['apiKey2']
 YOUTUBE_API_SERVICE_NAME = 'youtube'
 YOUTUBE_API_VERSION = 'v3'
 youtube = googleapiclient.discovery.build(

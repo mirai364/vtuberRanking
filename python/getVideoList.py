@@ -21,7 +21,7 @@ def init():
     )
 
     global youtube
-    API_KEY = ini.get('youtube_api','apiKey')
+    API_KEY = ini.get('youtube_api','apiKey2')
     YOUTUBE_API_SERVICE_NAME = 'youtube'
     YOUTUBE_API_VERSION = 'v3'
     youtube = googleapiclient.discovery.build(
