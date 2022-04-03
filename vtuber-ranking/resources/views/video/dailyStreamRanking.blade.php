@@ -69,7 +69,13 @@
             <tbody>
                 <?php $ranking = 1; ?>
                 @foreach ($dailyMap as $daily)
+                    @if( !isset($streamVideoMap[$daily['videoId']]) )
+                        @continue
+                    @endif
                     <?php $streamVideo = $streamVideoMap[$daily['videoId']]; ?>
+                    @if( !isset($channelMap[$streamVideo['channelId']]) )
+                        @continue
+                    @endif
                     <?php $channel = $channelMap[$streamVideo['channelId']]; ?>
                     <tr>
                         <td>
@@ -86,7 +92,7 @@
                             </a>
                         </td>
                         <td class="videoName">
-                            <a href="/video/detail/{{ $daily['videoId'] }}">
+                            <a href="/video/detail/{{ $streamVideo['videoId'] }}">
                                 <span style="font-size: small">{{ $channel['channelName'] }}</span><br>
                                 <span style="font-size: big">{{ $streamVideo['videoName'] }}</span>
                             </a>

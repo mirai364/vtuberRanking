@@ -34,7 +34,7 @@
                         @foreach ($hourlyList as $videoId => $viewers)
                             <td style="text-align: center;vertical-align: middle;">
                                 <?php $streamVideo = $streamVideoMap[$videoId]; ?>
-                                <a href="/video/detail/{{ $videoId }}">
+                                <a href="/video/detail/{{ $streamVideo['videoId'] }}">
                                     <img src="http://img.youtube.com/vi/{{ $streamVideo['videoId'] }}/mqdefault.jpg"
                                         style="width: 120px"><br>
                                     <span style="font-size: small">{{ $streamVideo['videoName'] }}</span><br>

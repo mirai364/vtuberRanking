@@ -64,7 +64,7 @@ class ChannelData extends Model
     {
         $cacheTime = Channel::getNextCacheTime();
         return Cache::remember('channelDataList_' . $channelId, $cacheTime, function () use ($channelId) {
-            return ChannelData::where('channelId', $channelId)->orderBy('id', 'desc')->limit(20)->get();
+            return ChannelData::where('channelId', $channelId)->orderBy('id', 'desc')->limit(30)->get();
         });
     }
 

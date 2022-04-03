@@ -104,7 +104,7 @@
             @if ($concurrentViewers === null)
                 @continue
             @endif
-            @if ($count >= 5)
+            @if ($count >= 15)
                 @continue
             @endif
             <?php $count++ ?>
@@ -115,7 +115,7 @@
                             src="http://img.youtube.com/vi/{{ $video->videoId }}/mqdefault.jpg" style="height: 68px"></a>
                 </td>
                 <td style="height: 68px;text-align: left;vertical-align: middle;">
-                    <a href="/video/detail/{{ $video->id }}" class="videoLink">
+                    <a href="/video/detail/{{ $video->videoId }}" class="videoLink">
                         <span>{{ $video->videoName }}<span><br>
                         <span style="font-size: small;color: brown;">max: {{ number_format($concurrentViewers['max']) }}人 avg: {{ number_format($concurrentViewers['avg']) }}人 総視聴時間: {{ number_format($concurrentViewers['sum']) }}</span>
                     </a>

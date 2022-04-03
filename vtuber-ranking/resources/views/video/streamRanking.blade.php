@@ -68,7 +68,13 @@
         <tbody>
             <?php $ranking = 1; ?>
             @foreach ($concurrentViewersList as $concurrentViewers)
+                @if( !isset($streamVideoMap[$concurrentViewers->videoId]) )
+                    @continue
+                @endif
                 <?php $streamVideo = $streamVideoMap[$concurrentViewers->videoId]; ?>
+                @if( !isset($channelMap[$streamVideo['channelId']]) )
+                    @continue
+                @endif
                 <?php $channel = $channelMap[$streamVideo['channelId']]; ?>
                 <tr>
                     <td>
@@ -79,13 +85,13 @@
                             style="height: 60px"><br>
                     </td>
                     <td>
-                        <a href="/video/detail/{{ $concurrentViewers->videoId }}">
+                        <a href="/video/detail/{{ $streamVideo['videoId'] }}">
                             <img id="img" style="width: 60px;height: 60px;border-radius: 50%;"
                                 src="{{ $channel['thumbnail'] }}">
                         </a>
                     </td>
                     <td class="videoName">
-                        <a href="/video/detail/{{ $concurrentViewers->videoId }}">
+                        <a href="/video/detail/{{ $streamVideo['videoId'] }}">
                             <span style="font-size: small">{{ $channel['channelName'] }}</span><br>
                             <span style="font-size: big">{{ $streamVideo['videoName'] }}</span>
                         </a>

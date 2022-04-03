@@ -65,10 +65,10 @@ class Video extends Model
     private const CACHE_TIME_VIEWERS = 1 * 60;
     private const CACHE_TIME = 5 * 60;
 
-    public static function find($id)
+    public static function findByVideoId($videoId)
     {
-        return Cache::remember('video_' . $id, self::CACHE_TIME_VIEWERS, function () use ($id) {
-            return Video::firstWhere('id', $id);
+        return Cache::remember('videoId_' . $videoId, self::CACHE_TIME_VIEWERS, function () use ($videoId) {
+            return Video::firstWhere('videoId', $videoId);
         });
     }
 
@@ -110,7 +110,7 @@ class Video extends Model
                 ->whereIn('isAlive', [0,1,3])
                 ->whereNotNull('starttime')
                 ->orderBy('id', 'desc')
-                ->limit(10)
+                ->limit(20)
                 ->get();
         });
     }

@@ -87,10 +87,10 @@ def getVideo(videoIdList):
         if ('scheduledStartTime' in item["liveStreamingDetails"]):
             scheduledStartTime = timetrans(item["liveStreamingDetails"]['scheduledStartTime'])
 
-        dataList.append((scheduledStartTime, actualStartTime, actualEndTime, isAlive, item["id"]))
+        dataList.append((item["snippet"]["channelId"], scheduledStartTime, actualStartTime, actualEndTime, isAlive, item["id"]))
 
     curChild = cnx.cursor()
-    curChild.executemany("UPDATE video SET scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, updatedAt = now() WHERE videoId = %s;", dataList)
+    curChild.executemany("UPDATE video SET channelId = %s, scheduledStartTime = %s, starttime = %s,  endtime = %s, isAlive = %s, updatedAt = now() WHERE videoId = %s;", dataList)
     curChild.close()
     cnx.commit()
 

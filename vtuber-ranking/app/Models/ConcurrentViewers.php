@@ -62,7 +62,7 @@ class ConcurrentViewers extends Model
     public static function findAllByVideoId($videoId)
     {
         return Cache::remember('concurrentViewersList_' . $videoId, self::CACHE_TIME_VIEWERS, function () use ($videoId) {
-            return ConcurrentViewers::where('videoId', $videoId)->orderBy('id', 'asc')->get();
+            return ConcurrentViewers::where('videoId', $videoId)->orderBy('createdAt', 'asc')->get();
         });
     }
 
@@ -104,7 +104,7 @@ class ConcurrentViewers extends Model
     {
         return Cache::rememberForever('hourlyStreamConcurrentViewersList_' . $nowDate->format("YmdH"), function () use ($nowDate) {
             $concurrentViewersList =  ConcurrentViewers::select('videoId', 'viewers')
-                ->selectRaw('HOUR(createdAt) AS time')
+                ->selectRaw('dhour AS time')
                 ->where('ddate', $nowDate->format('Ymd'))
                 ->where('dhour', $nowDate->format('H'))
                 ->orderBy('viewers', 'desc')->get();
@@ -113,7 +113,10 @@ class ConcurrentViewers extends Model
                 if (isset($hourlyMap[$concurrentViewers->videoId])) {
                     continue;
                 }
-                $hourlyMap[$concurrentViewers->videoId] = ['videoId' => $concurrentViewers->videoId, 'viewers' => $concurrentViewers->viewers];
+                $hourlyMap[$concurrentViewers->videoId] = [
+                    'videoId' => $concurrentViewers->videoId,
+                    'viewers' => $concurrentViewers->viewers
+                ];
                 if (count($hourlyMap) > 4) {
                     break;
                 }
