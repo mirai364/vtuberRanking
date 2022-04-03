@@ -59,7 +59,7 @@ class Video extends Model
         'videoId' => 'string',
         'videoName' => 'string',
         'starttime' => 'datetime',
-        'isAlive' => 'bool',
+        'isAlive' => 'int',
     ];
 
     private const CACHE_TIME_VIEWERS = 1 * 60;

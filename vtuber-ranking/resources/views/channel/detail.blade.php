@@ -108,7 +108,7 @@
                 @continue
             @endif
             <?php $count++ ?>
-            <tr style="{{ $video->isAlive == 1 ? 'background-color: papayawhip' : 'background-color: lightgray' }}">
+            <tr style="{{ $video->isAlive === 1 ? 'background-color: papayawhip' : 'background-color: lightgray' }}">
                 <td style="height: 68px;vertical-align: middle;">{{ $video->starttime }}</td>
                 <td style="height: 68px;vertical-align: middle;">
                     <a href="/video/detail/{{ $video->id }}"><img
@@ -120,7 +120,7 @@
                         <span style="font-size: small;color: brown;">max: {{ number_format($concurrentViewers['max']) }}人 avg: {{ number_format($concurrentViewers['avg']) }}人 総視聴時間: {{ number_format($concurrentViewers['sum']) }}</span>
                     </a>
                 </td>
-                <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive == 1 ? "<a href='https://www.youtube.com/watch?v=$video->videoId'><span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中</a>" : '' !!}</span></td>
+                <td style="width: 15rem;vertical-align: middle;">{!! $video->isAlive === 1 ? "<a href='https://www.youtube.com/watch?v=$video->videoId'><span style='color: brown;padding: 0.1em 0.2em;border: solid 2px brown;'\>ライブ配信中</a>" : '' !!}</span></td>
             </tr>
         @endforeach
     </table>
